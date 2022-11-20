@@ -6,6 +6,7 @@ Here are 1605 training sample and 30956 testing sample
 
 from sklearn.datasets import load_svmlight_files
 import numpy as np
+import os
 from matplotlib import pyplot as plt
 from setting import *
 
@@ -138,14 +139,14 @@ def plot_training_loss(loss_set):
     plt.xlabel('Epochs', fontsize=20), plt.ylabel('Loss', fontsize=20)
     plt.xticks(fontsize=20), plt.yticks(fontsize=20)
     plt.legend(fontsize=20)
-    plt.savefig('res/training_loss/' + data_name + '_loss.png', dpi=300)
+    plt.savefig('res/loss/' + data_name + '_loss.png', dpi=300)
     plt.show()
 
 
 def call_sklearn(name):
     from sklearn.linear_model import LogisticRegression
     X_train, Y_train, X_test, Y_test = load_svmlight_files(
-        ("dataset/" + name + ".txt", "dataset/" + name + ".t"))
+        ("../data/UCI/" + name + ".txt", "../data/UCI/" + name + ".t"))
 
     modelLR = LogisticRegression(max_iter=300)  # attention
     modelLR.fit(X_train, Y_train)
@@ -161,8 +162,16 @@ def create_space(name):
 
 
 if __name__ == '__main__':
-    # 1.获取样本属性
+    log_loss_path = 'res/loss/'
+    if not os.path.isdir(log_loss_path):
+        os.makedirs(log_loss_path)
+
     data_name = 'a9a'
+    log_interval = 20
+    epochs = hyper_params[data_name]['epoch']
+    alpha = hyper_params[data_name]['alpha']
+
+    # 1.获取样本属性
     nums_of_training, nums_of_testing, num_features = create_space(data_name)
 
     # 2.加载数据集
@@ -170,13 +179,12 @@ if __name__ == '__main__':
     test_data, test_label = load_dataset(data_name + ".t", nums_of_testing)
 
     # 以dense或sparse格式重新存储数据集
+    # if not os.path.isdir('res/data/'):
+    #     os.makedirs('res/data/')
     # save_txt(train_data, train_label, 'dense', 'res/data/training_dense.txt')
     # save_txt(test_data, test_label, 'sparse', 'res/data/testing_sparse.txt')
 
     # 3.训练
-    epochs = hyper_params[data_name]['epoch']
-    alpha = hyper_params[data_name]['alpha']
-    log_interval = 20
     print("Start training on " + data_name)
     model, train_loss = train(train_data, train_label)
     plot_training_loss(train_loss)
