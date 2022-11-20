@@ -1,0 +1,1 @@
+You can download from:http://yann.lecun.com/exdb/mnist/
