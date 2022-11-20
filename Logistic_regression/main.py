@@ -86,7 +86,7 @@ def init_params(nums_of_feature):
     return w, b
 
 
-def train(X, y, epochs=1000, alpha=0.0001):
+def train(X, y):
     w, b = init_params(num_features)
 
     train_loss_set = []
@@ -97,7 +97,9 @@ def train(X, y, epochs=1000, alpha=0.0001):
         b = b - alpha * np.sum(y_hat - y)
 
         train_loss_set.append(loss)
-        print('Train Epoch: {}\tLoss: {:.6f}'.format(epoch, loss))
+
+        if epoch % log_interval == 0:
+            print('Train Epoch: {}\tLoss: {:.6f}'.format(epoch, loss))
 
         state_dict = {'weight': w, 'bias': b}
 
@@ -116,20 +118,26 @@ def test(X, y, params):
 
 
 def plot_training_loss(loss_set):
+    """
+    为了观察方便，这里选取前20个epoch的结果进行再一次可视化
+    """
+    plt.figure(figsize=(10, 6))
+    plt.rc('font', family='Times New Roman')
+
     plt.subplot(121)
-    plt.title("Training loss")
+    plt.title("Training loss", fontsize=20)
     idx = [_ for _ in range(len(loss_set))]
     plt.plot(idx, loss_set, label=data_name)
-    plt.xlabel('Epoch')
-    plt.ylabel('Cross-Entropy Loss')
-    plt.legend()
+    plt.xlabel('Epochs', fontsize=20), plt.ylabel('Loss', fontsize=20)
+    plt.xticks(fontsize=20), plt.yticks(fontsize=20)
+    plt.legend(fontsize=20)
 
     plt.subplot(122)
-    plt.title("Training loss")
-    plt.plot(idx[:50], loss_set[:50], label=data_name)
-    plt.xlabel('Epoch')
-    plt.ylabel('Cross-Entropy Loss')
-    plt.legend()
+    plt.title("Training loss", fontsize=20)
+    plt.plot(idx[:20], loss_set[:20], label=data_name)
+    plt.xlabel('Epochs', fontsize=20), plt.ylabel('Loss', fontsize=20)
+    plt.xticks(fontsize=20), plt.yticks(fontsize=20)
+    plt.legend(fontsize=20)
     plt.savefig('res/training_loss/' + data_name + '_loss.png', dpi=300)
     plt.show()
 
@@ -154,25 +162,28 @@ def create_space(name):
 
 if __name__ == '__main__':
     # 1.获取样本属性
-    data_name = 'a1a'
+    data_name = 'a9a'
     nums_of_training, nums_of_testing, num_features = create_space(data_name)
 
     # 2.加载数据集
     train_data, train_label = load_dataset(data_name + ".txt", nums_of_training)
     test_data, test_label = load_dataset(data_name + ".t", nums_of_testing)
 
+    # 以dense或sparse格式重新存储数据集
     # save_txt(train_data, train_label, 'dense', 'res/data/training_dense.txt')
     # save_txt(test_data, test_label, 'sparse', 'res/data/testing_sparse.txt')
 
-    # 3.Training
+    # 3.训练
     epochs = hyper_params[data_name]['epoch']
     alpha = hyper_params[data_name]['alpha']
-    model, train_loss = train(train_data, train_label, epochs=epochs, alpha=alpha)
+    log_interval = 20
+    print("Start training on " + data_name)
+    model, train_loss = train(train_data, train_label)
     plot_training_loss(train_loss)
 
-    # 4.Testing
-    print(f"\nTrain set: accuracy: {test(train_data, train_label, model):.2f}%")
+    # 4.测试
+    # print(f"\nTrain set: accuracy: {test(train_data, train_label, model):.2f}%")
     print(f"Test set: accuracy: {test(test_data, test_label, model):.2f}%")
 
-    # 5.对比性能
+    # 5.调用sklearn库，性能对比
     call_sklearn(data_name)
