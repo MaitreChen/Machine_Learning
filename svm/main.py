@@ -1,5 +1,6 @@
 from time import perf_counter
 import pickle
+import os
 from sklearn.svm import SVC
 from sklearn.metrics import confusion_matrix
 
@@ -83,6 +84,12 @@ if __name__ == '__main__':
     test_path = '../data/MNIST/t10k-images-idx3-ubyte'
     test_label_path = '../data/MNIST/t10k-labels-idx1-ubyte'
 
+    if not os.path.isdir('model'):
+        os.makedirs('model')
+
+    if not os.path.isdir('feature'):
+        os.makedirs('feature')
+
     model_path = 'model/best.pickle'
     feature_path = 'feature/ft_'
 
@@ -97,10 +104,10 @@ if __name__ == '__main__':
     print(f'Testing shape: {test_data.shape, test_label.shape}')
 
     # 2.Extract feature
-    # train_feature = get_hog_feature(train_data, 'train')
-    # test_feature = get_hog_feature(test_data, 'test')
-    train_feature = np.load(feature_path + 'train.npy')
-    test_feature = np.load(feature_path + 'test.npy')
+    train_feature = get_hog_feature(train_data, 'train')
+    test_feature = get_hog_feature(test_data, 'test')
+    # train_feature = np.load(feature_path + 'train.npy')
+    # test_feature = np.load(feature_path + 'test.npy')
 
     print(f"\nFeature shape of the training data: {train_feature.shape}")
     print(f"Feature shape of the testing data: {test_feature.shape}")
