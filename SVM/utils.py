@@ -1,11 +1,14 @@
 """
 该工具库包含了以下功能：
-mnist数据集的读取、将数据保存为libsvm格式、hog特征提取
+mnist数据集的读取、将数据保存为libsvm格式、hog特征提取、cfg配置解析
 """
 
 import numpy as np
 import cv2 as cv
 import struct
+
+import os
+import configparser
 
 
 def load_mnist(labels_path, images_path):
@@ -60,6 +63,11 @@ def parse_idx1_ubyte_file(path):
 
 
 def data2libsvm(X, Y):
+    """
+    @param X:
+    @param Y:
+    @return: 归一化后的稀疏样本
+    """
     data_set = []
     for x_sample, y_sample in zip(X, Y):
         data = ''
@@ -129,3 +137,27 @@ def feature_extraction(src, cell_size=7, bin_size=9, stride=1):
             hog_feature.extend(block_norm)
 
     return np.array(hog_feature).ravel()
+
+
+def getConfig(filename, section, option):
+    """
+    :param filename 文件名称
+    :param section: 服务
+    :param option: 配置参数
+    :return:返回配置信息
+    """
+    # 获取当前目录路径
+    proDir = os.path.split(os.path.realpath(__file__))[0]
+    # print(proDir)
+
+    # 拼接路径获取完整路径
+    configPath = os.path.join(proDir, filename)
+    # print(configPath)
+
+    # 创建ConfigParser对象
+    conf = configparser.ConfigParser()
+
+    # 读取文件内容
+    conf.read(configPath)
+    config = conf.get(section, option)
+    return config
